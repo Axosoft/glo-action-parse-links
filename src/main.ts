@@ -12,7 +12,9 @@ function formatResponse(response: ICard[]) {
 }
 
 async function run() {
-  if (process.env.GITHUB_EVENT_NAME !== 'push') {
+  const isPush = process.env.GITHUB_EVENT_NAME === 'push';
+  const isPullRequest = process.env.GITHUB_EVENT_NAME === 'pull_request';
+  if (!isPush && !isPullRequest) {
     return formatResponse([]);
   }
 
@@ -20,11 +22,22 @@ async function run() {
   const event: any = JSON.parse(
     fs.readFileSync(process.env.GITHUB_EVENT_PATH as string, {encoding: 'utf8'})
   );
-  if (!event || !event.head_commit || !event.head_commit.message) {
-    return formatResponse([]);
+
+  let bodyToSearchForGloLink;
+  if (isPush) {
+    if (!event || !event.head_commit || !event.head_commit.message) {
+      return formatResponse([]);
+    }
+    bodyToSearchForGloLink = event.head_commit.message;
   }
 
-  const bodyToSearchForGloLink = event.head_commit.message;
+  if (isPullRequest) {
+    if (!event || !event.pull_request || !event.pull_request.body) {
+      return formatResponse([]);
+    }
+    bodyToSearchForGloLink = event.pull_request.body;
+  }
+
   const urlREGEX = RegExp(
     `https://app.gitkraken.com/glo/board/([\\w.-]+)/card/([\\w.-]+)`,
     'g'
