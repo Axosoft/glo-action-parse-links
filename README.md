@@ -4,7 +4,7 @@ Use this action to parse out [Glo Boards](https://www.gitkraken.com/glo) card ID
 The action returns an output that is a stringified list of boards and cards.
 
 ## Using Glo Boards card links
-A common scenario in development workflow is to add links to issues or Glo cards in commit messages and pull request descriptions.
+A common scenario in development workflows is to add links to issues or Glo cards in commit messages and pull request descriptions.
 ```md
 Fixed this issue https://app.gitkraken.com/glo/board/yTpBhWt5sAAPpbTs/card/XTpBhVr8GQAQzaCa
 Works fine on my machine
@@ -16,32 +16,32 @@ The board ID and card ID can then be used in subsequent steps to perform actions
 (e.g. change the label or assignee, or move the cards to another column).
 
 ## Action output
-This action has an output parameter called `boards` which is an array of objects with the following interface:
+This action has an output parameter called `cards` which is an array of objects with the following interface:
 ```ts
-interface IBoard {
-  id: string;
-  cards: string[];
+interface ICard {
+  boardId: string;
+  cardId: string;
 }
 ```
-where `id` is the ID of the board, and `cards` is an array of card IDs belonging to that board.
+where `boardId` is the ID of the board, and `cardId` is the ID of a card belonging to that board.
 
-The `boards` output is stringified, so in order to use it in another action it just needs to be parsed:
+The `cards` output is stringified, so in order to use it in another action it just needs to be parsed:
 ```ts
-const boards = JSON.parse(boardsJson);
+const cardsJson = core.getInput('cards');
+const cards = JSON.parse(cardsJson);
 ```
 
-
 ## Usage with another action
-Add a step in your workflow file to perform this action:
+Add a step in your workflow file to perform to parse the links, then a second step can use the output from this action:
 ```yaml
     steps:
     - uses: Axosoft/glo-action-parse-links@v1
       id: glo-parse
 
-    - uses: Axosoft/glo-action-label-cards@v1
+    - uses: Axosoft/glo-action-label-card@v1
       with:
         authToken: ${{ secrets.GLO-PAT }}
-        boards: '${{ steps.glo-parse.outputs.boards }}'
+        cards: '${{ steps.glo-parse.outputs.cards }}'
         label: 'Released'
       id: glo-label
 ```

@@ -1,13 +1,14 @@
 import * as fs from 'fs';
 import * as core from '@actions/core';
-import { toHex } from 'base64-mongo-id';
+import {toHex} from 'base64-mongo-id';
 
-interface IBoard {
-  id: string;
-  cards: string[];
+interface ICard {
+  boardId: string;
+  cardId: string;
 }
-function formatResponse(response: IBoard[]) {
-  return core.setOutput("boards", JSON.stringify(response));;
+
+function formatResponse(response: ICard[]) {
+  return core.setOutput('cards', JSON.stringify(response));
 }
 
 async function run() {
@@ -16,17 +17,20 @@ async function run() {
   }
 
   // read event file
-  const event: any = JSON.parse(fs.readFileSync(process.env.GITHUB_EVENT_PATH as string, { encoding: 'utf8' }));
+  const event: any = JSON.parse(
+    fs.readFileSync(process.env.GITHUB_EVENT_PATH as string, {encoding: 'utf8'})
+  );
   if (!event || !event.head_commit || !event.head_commit.message) {
-    return formatResponse([]); 
+    return formatResponse([]);
   }
 
-  let bodyToSearchForGloLink = event.head_commit.message;
+  const bodyToSearchForGloLink = event.head_commit.message;
+  const urlREGEX = RegExp(
+    `https://app.gitkraken.com/glo/board/([\\w.-]+)/card/([\\w.-]+)`,
+    'g'
+  );
+  const cards: ICard[] = [];
 
-  const urlREGEX = RegExp(`https://app.gitkraken.com/glo/board/([\\w.-]+)/card/([\\w.-]+)`, 'g');
-
-  let boardIdIndexMap: { [boardId: string]: number } = {};
-  let boards: IBoard[] = [];
   let foundResult;
   while ((foundResult = urlREGEX.exec(bodyToSearchForGloLink)) !== null) {
     if (!foundResult || foundResult.length < 3) {
@@ -37,20 +41,13 @@ async function run() {
     const boardId = toHex(foundResult[1]);
     const cardId = toHex(foundResult[2]);
 
-    boardIdIndexMap[boardId] = boardIdIndexMap[boardId] || boards.length;
-
-    const board = boards[boardIdIndexMap[boardId]];
-    if (board) {
-      board.cards.push(cardId);
-    } else {
-      boards[boardIdIndexMap[boardId]] = {
-        id: boardId,
-        cards: [cardId]
-      }
-    }
+    cards.push({
+      boardId,
+      cardId
+    });
   }
 
-  return formatResponse(boards);
+  return formatResponse(cards);
 }
 
 run();
