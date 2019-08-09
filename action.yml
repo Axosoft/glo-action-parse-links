@@ -8,4 +8,4 @@ outputs:
     description: Stringified array of boards with list of cards
 runs:
   using: 'node12'
-  main: 'lib/index.js'
+  main: 'lib/main.js'
