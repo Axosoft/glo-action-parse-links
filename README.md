@@ -31,6 +31,10 @@ const cardsJson = core.getInput('cards');
 const cards = JSON.parse(cardsJson);
 ```
 
+The action also outputs information about the pull request or commit.
+The `title` output is the pull request title or the head commit sha.
+The `body` output is the pull request body or the head commit message.
+
 ## Usage with another action
 Add a step in your workflow file to perform to parse the links, then a second step can use the output from this action:
 ```yaml

@@ -1,8 +1,8 @@
 {
   "name": "glo-action-parse-links",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "private": true,
-  "description": "const boardIds = JSON.parse(boardsJson)",
+  "description": "GitHub action to parse links to Glo cards in PR message",
   "main": "lib/main.js",
   "scripts": {
     "build": "tsc",

@@ -4,8 +4,12 @@ branding:
   color: 'blue'
   icon: 'link'
 outputs:
-  boards:
-    description: Stringified array of boards with list of cards
+  cards:
+    description: Stringified array of card objects { cardId, boardId }
+  title:
+    description: Pull request tile or commit sha
+  body:
+    description: Pull request description or commit message
 runs:
   using: 'node12'
   main: 'lib/main.js'
