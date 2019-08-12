@@ -1,4 +1,4 @@
-name: 'Glo Parse Card Links'
+name: 'Glo Boards Parse Card Links'
 description: 'GitHub Action to parse links to Glo Boards cards'
 branding:
   color: 'blue'
